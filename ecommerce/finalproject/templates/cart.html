@@ -1,0 +1,153 @@
+ <!-- 
+    finalproject/templates/cart.html 
+    Author: Crosby Nash (crosbyn@bu.edu), 12/26/2024
+    This template displays the user's shopping cart, allowing them to view, update, or remove items, apply discount codes, and proceed to checkout.
+-->
+{% extends "base.html" %}
+<!-- Extends the base template to inherit common layout and styles. -->
+
+{% load static %}
+<!-- Loads Django's static tag library. -->
+
+{% block content %}
+<!-- Main content block for the shopping cart page. -->
+<div class="container my-5">
+    <h2 class="mb-4 text-center">Your Shopping Cart</h2>
+    <!-- Page title. -->
+
+    {% if order_items %}
+    <!-- If the user has items in their cart, display the cart table. -->
+    <form action="{% url 'update_cart' %}" method="post" id="cart-form">
+        {% csrf_token %}
+
+        <div class="cart-table-wrapper">
+            <!-- Table for displaying cart items with details and actions. -->
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <!-- Table headers. -->
+                    <tr>
+                        <th>Item</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order_item in order_items %}
+                    <!-- Loop through each item in the cart and display its details. -->
+                    <tr>
+                        <td>
+                            <!-- Displays the item's image and title. -->
+                            <div class="d-flex align-items-center">
+                                <img src="{{ order_item.item.image.url }}" alt="{{ order_item.item.title }}" class="img-thumbnail me-3" style="width: 80px; height: 80px;">
+                                <div>
+                                    <h6 class="mb-0 item-title">{{ order_item.item.title }}</h6>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-primary"><strong>${{ order_item.item.price }}</strong></td>
+                        <!-- Displays the price of the item. -->
+                        <td>
+                            <!-- Input field for updating the quantity of the item. -->
+                            <input
+                                type="number"
+                                name="quantity_{{ order_item.id }}"
+                                value="{{ order_item.quantity }}"
+                                min="1"
+                                class="form-control text-center quantity-input"
+                            >
+                        </td>
+                        <td class="text-success"><strong>${{ order_item.total_price|floatformat:2 }}</strong></td>
+                        <!-- Displays the total price for the item (price * quantity). -->
+                        <td>
+                            <!-- Button to remove the item from the cart. -->
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-sm"
+                                name="remove_item"
+                                value="{{ order_item.id }}"
+                                title="Remove item from cart"
+                            >
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="3" class="text-end">
+                            <strong>Cart Total:</strong>
+                        </td>
+                        <td colspan="2" class="text-success">
+                            <strong>${{ total|floatformat:2 }}</strong>
+                            <!-- Displays the total amount for all items in the cart. -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Row for discount code input and cart actions (update or checkout). -->
+            <div class="col-md-6">
+                <!-- Input for applying or removing discount codes. -->
+                <div class="input-group">
+                    <input
+                        type="text"
+                        name="discount_code"
+                        placeholder="Enter discount code"
+                        class="form-control"
+                        value="{% if order.discount %}{{ order.discount.code }}{% endif %}"
+                        {% if order.discount %}
+                            readonly
+                        {% endif %}
+                    >
+                    {% if not order.discount %}
+                    <!-- Apply discount button if no discount is applied. -->
+                    <button type="submit" class="btn btn-outline-secondary">Apply</button>
+                    {% else %}
+                    <!-- Remove discount button if a discount is applied. -->
+                    <button type="submit" class="btn btn-outline-danger" name="remove_discount" value="true">Remove Discount</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <!-- Buttons for updating the cart and proceeding to checkout. -->
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-arrow-repeat"></i> Update Cart
+                </button>
+                <a href="{% url 'checkout' %}" class="btn btn-success">
+                    <i class="bi bi-cart-check"></i> Proceed to Checkout
+                </a>
+            </div>
+        </div>
+
+        {% if order.discount %}
+        <!-- Section to display applied discount details. -->
+        <div class="mt-3 p-3 bg-light border rounded">
+            <h5>Applied Discount:</h5>
+            <p>
+                Code: <strong>{{ order.discount.code }}</strong><br>
+                {% if order.discount.discount_type == 'percentage' %}
+                    Discount: {{ order.discount.amount }}%
+                {% elif order.discount.discount_type == 'fixed' %}
+                    Discount: ${{ order.discount.amount }}
+                {% endif %}
+                <br>
+                Discount Amount: ${{ order.discount_amount|floatformat:2 }}
+                <!-- Displays the discount code, type, and amount applied to the cart. -->
+            </p>
+        </div>
+        {% endif %}
+    </form>
+    {% else %}
+    <!-- Message displayed when the cart is empty. -->
+    <div class="text-center empty-cart">
+        <p class="lead">Your cart is empty.</p>
+        <a href="{% url 'item_list' %}" class="btn btn-primary">
+            Browse Items
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

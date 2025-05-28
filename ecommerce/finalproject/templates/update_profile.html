@@ -1,0 +1,83 @@
+<!-- 
+    finalproject/templates/update_profile.html  
+    Author: Crosby Nash (crosbyn@bu.edu), 12/26/2024
+    Registration page template for new users to create an account. 
+-->
+
+{% extends "base.html" %}
+<!-- Extends the base template to inherit common layout and styles. -->
+
+{% load form_tags %}
+<!-- Loads custom template filter 'add_class' for dynamically adding CSS classes to form fields. -->
+
+{% block content %}
+<!-- Main content block for the update profile page. -->
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Card container for the form, styled with Bootstrap. -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <!-- Page Title -->
+                <h2 class="card-title text-center mb-4">Update Profile</h2>
+
+                <!-- Profile update form -->
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Display form errors, if any -->
+                    {% if user_form.errors or profile_form.errors %}
+                        <div class="alert alert-danger">
+                            <!-- Alert message for form validation errors. -->
+                            <strong>Please correct the errors below.</strong>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- User Information Section -->
+                    <div class="mb-4">
+                        <h4 class="mb-3">User Information</h4>
+                        {% for field in user_form %}
+                        <!-- Loop through the fields in the user_form to render them dynamically. -->
+                            <div class="mb-3">
+                                <!-- Render the label and input field for each user_form field. -->
+                                {{ field.label_tag }}
+                                {{ field|add_class:"form-control" }}
+                                <!-- Apply the 'form-control' class dynamically using the custom filter. -->
+                                {% if field.errors %}
+                                <!-- Display field-specific error messages, if any. -->
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Profile Information Section -->
+                    <div class="mb-4">
+                        <h4 class="mb-3">Profile Information</h4>
+                        {% for field in profile_form %}
+                        <!-- Loop through the fields in the profile_form to render them dynamically. -->
+                            <div class="mb-3">
+                                <!-- Render the label and input field for each profile_form field. -->
+                                {{ field.label_tag }}
+                                {{ field|add_class:"form-control" }}
+                                <!-- Apply the 'form-control' class dynamically using the custom filter. -->
+                                {% if field.errors %}
+                                <!-- Display field-specific error messages, if any. -->
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Action Buttons Section -->
+                    <div class="d-flex justify-content-between">
+                        <!-- Submit button to save changes. -->
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <!-- Link to cancel the update and return to the profile page. -->
+                        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

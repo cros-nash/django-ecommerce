@@ -1,0 +1,92 @@
+<!-- 
+    templates/profile.html
+    Author: Crosby Nash (crosbyn@bu.edu), 12/26/2024
+    Displays the user's profile, including personal details, items for sale, and purchase history.
+-->
+{% extends "base.html" %}
+<!-- Extends the base template to inherit common layout and styles. -->
+
+{% block content %}
+<!-- Main content block for the profile page. -->
+<div class="row">
+    <!-- User Information Section -->
+    <div class="col-md-4">
+        <h3>Your Profile</h3>
+        <ul class="list-group">
+            <!-- Display the user's username, email, and address. -->
+            <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+            <li class="list-group-item"><strong>Address:</strong> {{ user_profile.address }}</li>
+        </ul>
+        <div class="mt-3">
+            <!-- Links to update profile and change password pages. -->
+            <a href="{% url 'update_profile' %}" class="btn btn-primary">Update Profile</a>
+            <a href="{% url 'change_password' %}" class="btn btn-secondary">Change Password</a>
+        </div>
+    </div>
+    
+    <!-- Items for Sale Section -->
+    <div class="col-md-8">
+        <h3>Items for Sale</h3>
+        {% if items_for_sale %}
+        <!-- If the user has listed items for sale, display them as a list. -->
+            <ul class="list-group mb-4">
+                {% for item in items_for_sale %}
+                <!-- Loop through each item and display its details. -->
+                    <li class="list-group-item">
+                        <strong>{{ item.title }}</strong> - ${{ item.price }}
+                        <!-- Display the item's description. -->
+                        <p>{{ item.description }}</p>
+                        <!-- Links to view, edit, or delete the item. -->
+                        <a href="{% url 'item_detail' item.pk %}" class="btn btn-sm btn-info">View Details</a>
+                        <a href="{% url 'item_update' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'item_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+        <!-- Message displayed if the user has no items listed for sale. -->
+            <p>You have no items listed for sale.</p>
+        {% endif %}
+        
+        <!-- Purchase History Section -->
+        <h3>Purchase History</h3>
+        {% if purchase_orders %}
+        <!-- If the user has made purchases, display their order history. -->
+            <ul class="list-group">
+                {% for order_info in purchase_orders %}
+                <!-- Loop through each order and display its details. -->
+                    <li class="list-group-item">
+                        <strong>Order #{{ order_info.order.id }}</strong> - 
+                        <!-- Format the order date using the Django `date` filter. -->
+                        {{ order_info.order.order_date|date:"F j, Y, g:i a" }}
+                        <br>
+                        <!-- Display the original total before discounts. -->
+                        <strong>Original Total:</strong> ${{ order_info.total_without_discount }}
+                        {% if order_info.discount %}
+                        <!-- If a discount was applied, display its details. -->
+                            <br>
+                            <strong>Discount ({{ order_info.discount.code }}):</strong> -${{ order_info.discount_amount }}
+                        {% endif %}
+                        <br>
+                        <!-- Display the final total after applying discounts. -->
+                        <strong>Final Total:</strong> ${{ order_info.final_total }}
+                        <br>
+                        <!-- Display the status of the order (e.g., Shipped). -->
+                        <strong>Status:</strong> {{ order_info.order.get_status_display }}
+                        <ul>
+                            <!-- Loop through the items in the order and display their details. -->
+                            {% for order_item in order_info.order.orderitem_set.all %}
+                                <li>{{ order_item.item.title }} (Quantity: {{ order_item.quantity }}) - ${{ order_item.total_price }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+        <!-- Message displayed if the user has no purchase history. -->
+            <p>You have no purchase history.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

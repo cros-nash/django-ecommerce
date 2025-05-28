@@ -1,0 +1,29 @@
+<!-- 
+    finalproject/templates/registration/logout.html
+    Author: Crosby Nash (crosbyn@bu.edu), 12/26/2024
+    This template displays a confirmation message when the user logs out and provides navigation options.
+-->
+{% extends "base.html" %}
+<!-- Extends the base template to inherit common layout and styles. -->
+
+{% block content %}
+<!-- Main content block for the logged-out confirmation message. -->
+<div class="row justify-content-center">
+    <!-- Centers the content horizontally on the page using Bootstrap's grid system. -->
+    <div class="col-md-6 text-center">
+        <!-- Sets the column width to 6 units and centers the text. -->
+
+        <h2>Logged Out</h2>
+        <!-- Displays a heading indicating the user is logged out. -->
+
+        <p>You have successfully logged out.</p>
+        <!-- Informational message confirming successful logout. -->
+
+        <a href="{% url 'home' %}" class="btn btn-primary">Return to Home</a>
+        <!-- Button linking back to the homepage. -->
+
+        <a href="{% url 'login' %}" class="btn btn-secondary">Login Again</a>
+        <!-- Button linking to the login page for users who want to log back in. -->
+    </div>
+</div>
+{% endblock %}

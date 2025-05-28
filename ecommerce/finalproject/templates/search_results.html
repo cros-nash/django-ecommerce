@@ -1,0 +1,93 @@
+<!-- 
+    templates/search_results.html
+    Author: Crosby Nash (crosbyn@bu.edu), 12/26/2024
+    Displays the search results for a user's query, including pagination for multiple pages of results.
+-->
+{% extends "base.html" %}
+<!-- Extends the base template to inherit common layout and styles. -->
+
+{% block content %}
+<!-- Main content block for the search results page. -->
+<div class="row">
+    <div class="col-md-12">
+        <!-- Display the user's search query at the top of the page. -->
+        <h2>Search Results for "{{ query }}"</h2>
+        
+        {% if items %}
+        <!-- If items matching the search query exist, display them in a grid format. -->
+            <div class="row">
+                {% for item in items %}
+                <!-- Loop through each item and display it as a card. -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="image-container">
+                                <!-- Display the item's image. -->
+                                <img src="{{ item.image.url }}" class="card-img-top img-fluid" alt="{{ item.title }}">
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <!-- Display the item's title. -->
+                                <h5 class="card-title">{{ item.title }}</h5>
+                                <!-- Display a truncated version of the item's description. -->
+                                <p class="card-text">{{ item.description|truncatewords:15 }}</p>
+                                <!-- Display the item's price. -->
+                                <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
+                                <!-- Link to the item's detail page. -->
+                                <a href="{% url 'item_detail' item.pk %}" class="mt-auto btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if is_paginated %}
+            <!-- If the results are paginated, display pagination controls. -->
+                <nav aria-label="Search results pages">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <!-- Display the "Previous" button if a previous page exists. -->
+                            <li class="page-item">
+                                <a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                        <!-- Disable the "Previous" button if there is no previous page. -->
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&laquo;</span>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in paginator.page_range %}
+                        <!-- Display page numbers for the pagination. -->
+                            {% if page_obj.number == num %}
+                            <!-- Highlight the current page. -->
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <!-- Show pages close to the current page for better navigation. -->
+                                <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <!-- Display the "Next" button if another page exists. -->
+                            <li class="page-item">
+                                <a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                        <!-- Disable the "Next" button if there is no next page. -->
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+        <!-- If no items match the search query, display a message. -->
+            <p>No items found matching your search criteria. Please try different keywords.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

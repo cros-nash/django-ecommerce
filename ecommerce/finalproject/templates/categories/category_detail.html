@@ -1,0 +1,80 @@
+<!--    
+    finalproject/templates/categories/category_detail.html
+    Author: Crosby Nash (crosbyn@bu.edu), 12/26/2024
+    This template displays the details of a specific category, including the list of items within the category and sorting options. 
+-->
+
+{% extends "base.html" %}
+<!-- Extends the base template to inherit common layout and styles. -->
+
+{% block content %}
+<!-- Main content block for displaying category details and items. -->
+<div class="row">
+    <div class="col-md-12">
+        <!-- Breadcrumb navigation for easy navigation between categories. -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <!-- Link to the category list page. -->
+                <li class="breadcrumb-item"><a href="{% url 'category_list' %}">Categories</a></li>
+                <!-- Current category name. -->
+                <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+            </ol>
+        </nav>
+
+        <!-- Category title -->
+        <h2>Category: {{ category.name }}</h2>
+
+        {% if items %}
+        <!-- If items exist in the category, display sorting options and the item list. -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <!-- Button to return to the list of all categories. -->
+                    <a href="{% url 'category_list' %}" class="btn btn-secondary">Back to Categories</a>
+                </div>
+                <div>
+                    <!-- Sorting form to change the order of displayed items. -->
+                    <form method="get" action="{% url 'category_detail' category.pk %}" class="d-flex">
+                        <label for="sort" class="me-2">Sort by:</label>
+                        <select name="sort" id="sort" class="form-select me-2">
+                            <!-- Sorting options, with selected value reflecting current sorting state. -->
+                            <option value="">Default</option>
+                            <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="date_new" {% if request.GET.sort == 'date_new' %}selected{% endif %}>Newest Arrivals</option>
+                            <option value="date_old" {% if request.GET.sort == 'date_old' %}selected{% endif %}>Oldest Arrivals</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Sort</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Loop through the items in the category and display each one as a card. -->
+                {% for item in items %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="image-container">
+                                <!-- Display the item's image. -->
+                                <img src="{{ item.image.url }}" class="card-img-top item-image" alt="{{ item.title }}" loading="lazy">
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <!-- Display the item's title. -->
+                                <h5 class="card-title">{{ item.title }}</h5>
+                                <!-- Display a truncated version of the item's description. -->
+                                <p class="card-text">{{ item.description|truncatewords:15 }}</p>
+                                <!-- Display the item's price. -->
+                                <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
+                                <!-- Link to the item's detail page. -->
+                                <a href="{% url 'item_detail' item.pk %}" class="mt-auto btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+        <!-- Message displayed if there are no items in the category. -->
+            <p>No items found in this category.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
