@@ -5,7 +5,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('home', views.ItemListView.as_view(), name='home'),
+    path('', views.ItemListView.as_view(), name='home'),
     
     # Authentication
     path('register/', views.RegisterView.as_view(), name='register'),
