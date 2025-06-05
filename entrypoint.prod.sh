@@ -11,7 +11,7 @@ then
     echo "PostgreSQL started"
 fi
 
-python manage.py loaddata users.json
-python manage.py loaddata finalproject.json
+python manage.py loaddata data/users.json
+python manage.py loaddata data/finalproject.json
 
 exec "$@"
