@@ -4,4 +4,4 @@
 .env.prod
 .env.prod.db
 .gitignore
-infrastructure/.terraform
+terraform/.terraform
